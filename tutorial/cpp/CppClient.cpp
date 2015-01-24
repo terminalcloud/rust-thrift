@@ -45,6 +45,13 @@ int main() {
     client.ping();
     cout << "ping()" << endl;
 
+    for(int i = 0; i < 2000; i++) {
+    	client.add(1, 1);
+    	if(i % 100 == 0) {
+    		printf("%d\n", i);
+    	}
+    }
+    return 0;
     cout << "1 + 1 = " << client.add(1, 1) << endl;
 
     Work work;

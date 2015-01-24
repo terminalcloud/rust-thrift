@@ -36,9 +36,16 @@ fn run_client(client: &mut tutorial::CalculatorClient) {
     client.ping().ok().unwrap();
     println!("ping()");
 
+    for i in range(0,2000) {
+      let _ = client.add(1, 1).ok().unwrap();
+      if i % 100 == 0 {
+        println!("{}",i);
+      }
+    }
     // Add
     println!("1 + 1 = {}", client.add(1, 1).ok().unwrap());
 
+/*
     // Work: divide
     let work = tutorial::Work { 
       op: tutorial::Operation::DIVIDE, 
@@ -66,7 +73,7 @@ fn run_client(client: &mut tutorial::CalculatorClient) {
 
     let ss = client.getStruct(1).ok().unwrap();
     println!("Received log: {:?}", ss);
-
+*/
     println!("PASS");
 }
 
