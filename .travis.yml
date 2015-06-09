@@ -20,6 +20,7 @@
 # build Apache Thrift on Travis CI - https://travis-ci.org/
 
 language: cpp
+sudo: required
 
 cache:
  - apt
