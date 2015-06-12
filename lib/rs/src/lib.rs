@@ -1,4 +1,5 @@
 extern crate podio;
+extern crate bufstream;
 
 use std::{io, fmt};
 use std::error::Error as StdError;

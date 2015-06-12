@@ -19,7 +19,8 @@
 
 use std::io;
 use std::net::{TcpListener, TcpStream};
-use super::Transport;
+use transport::Transport;
+use bufstream::BufStream;
 
 pub trait TransportServer {
     type Transport: Transport;
@@ -34,3 +35,18 @@ impl TransportServer for TcpListener {
         self.accept().map(|res| res.0)
     }
 }
+
+pub struct BufferedTransportServer<T: TransportServer>(pub T);
+
+impl<T> TransportServer for BufferedTransportServer<T>
+where T: TransportServer,
+      // FIXME: This bound is redundant and should be removed when
+      // rust 1.1 stable is released.
+      T::Transport: Transport {
+    type Transport = BufStream<T::Transport>;
+
+    fn accept(&self) -> io::Result<Self::Transport> {
+         self.0.accept().map(|res| BufStream::new(res))
+    }
+}
+
