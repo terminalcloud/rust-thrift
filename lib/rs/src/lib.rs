@@ -11,6 +11,10 @@ pub mod transport;
 pub mod server;
 pub mod processor;
 
+#[macro_use]
+mod codegen;
+mod impls;
+
 #[derive(Debug)]
 pub enum Error {
     /// An error occurred when reading from/writing to the underlying transport
@@ -57,4 +61,12 @@ impl fmt::Display for Error {
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+// strukt! {
+//     name = GeneratedStruct,
+//     fields = {
+//         key: u8 => 0,
+//         value: String => 1
+//     }
+// }
 
