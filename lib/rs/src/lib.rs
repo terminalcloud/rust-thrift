@@ -5,6 +5,7 @@ use std::error::Error as StdError;
 
 pub use protocol::Protocol;
 pub use transport::Transport;
+pub use processor::Processor;
 
 pub mod protocol;
 pub mod transport;
@@ -14,6 +15,7 @@ pub mod processor;
 #[macro_use]
 mod codegen;
 mod impls;
+mod compiletest;
 
 #[derive(Debug)]
 pub enum Error {
@@ -61,12 +63,4 @@ impl fmt::Display for Error {
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
-
-// strukt! {
-//     name = GeneratedStruct,
-//     fields = {
-//         key: u8 => 0,
-//         value: String => 1
-//     }
-// }
 
