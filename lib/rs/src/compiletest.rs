@@ -24,6 +24,12 @@ strukt! {
     }
 }
 
+enom! {
+    name = Operation,
+    values = [Add = 1, Sub = 2, Mul = 3, Div = 4],
+    default = Add
+}
+
 service! {
     trait_name = SharedService,
     processor_name = SharedServiceProcessor,

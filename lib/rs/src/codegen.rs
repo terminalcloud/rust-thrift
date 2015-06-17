@@ -178,3 +178,51 @@ macro_rules! strukt {
     };
 }
 
+#[macro_export]
+macro_rules! enom {
+    (name = $name:ident,
+     values = [$($vname:ident = $val:expr),*],
+     default = $dname:ident) => {
+        #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+        #[repr(i32)]
+        pub enum $name {
+            $($vname = $val),*
+        }
+
+        impl Default for $name {
+            fn default() -> Self { $name::$dname }
+        }
+
+        impl $crate::protocol::FromNum for $name {
+            fn from_num(num: i32) -> Option<Self> {
+                match num {
+                    $($val => Some($name::$vname)),*,
+                    _ => None
+                }
+            }
+        }
+
+        impl $crate::protocol::ThriftTyped for $name {
+            fn typ() -> $crate::protocol::Type { $crate::protocol::Type::I32 }
+        }
+
+        impl $crate::protocol::Encode for $name {
+            fn encode<P, T>(&self, protocol: &mut P, transport: &mut T) -> $crate::Result<()>
+            where P: $crate::Protocol, T: $crate::Transport {
+                #[allow(unused_imports)]
+                use $crate::Protocol;
+
+                protocol.write_i32(transport, *self as i32)
+            }
+        }
+
+        impl $crate::protocol::Decode for $name {
+            fn decode<P, T>(&mut self, protocol: &mut P, transport: &mut T) -> $crate::Result<()>
+            where P: $crate::Protocol, T: $crate::Transport {
+                *self = try!($crate::protocol::helpers::read_enum(protocol, transport));
+                Ok(())
+            }
+        }
+    }
+}
+
