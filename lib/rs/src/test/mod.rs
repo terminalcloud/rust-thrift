@@ -1,5 +1,5 @@
-use protocol::Encode;
-use mock::{MockProtocol, MockTransport};
+use protocol::{Type, Encode};
+use mock::*;
 
 mod prim;
 mod strukt;
@@ -13,3 +13,6 @@ pub fn encode<T: Encode>(x: T) -> MockProtocol {
     protocol
 }
 
+pub fn field_end() -> ProtocolAction {
+    Field(Begin((String::new(), Type::Stop, 0)))
+}
