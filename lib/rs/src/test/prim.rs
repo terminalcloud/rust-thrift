@@ -6,7 +6,7 @@ macro_rules! test_prim_encode {
         #[test]
         fn $testname() {
             for val in $iter {
-                let protocol = encode(val.clone());
+                let protocol = encode(&val);
                 assert_eq!(protocol.log(), &[Prim($variant(val))]);
             }
         }
