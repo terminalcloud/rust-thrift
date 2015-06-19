@@ -21,8 +21,7 @@
 extern crate thrift;
 extern crate bufstream;
 
-use std::str::FromStr;
-use std::net;
+use std::net::TcpStream;
 use bufstream::BufStream;
 use thrift::protocol::binary_protocol::BinaryProtocol;
 
@@ -30,12 +29,7 @@ mod tutorial;
 mod shared;
 
 pub fn main() {
-    let addr: net::SocketAddr = FromStr::from_str("127.0.0.1:9090").ok()
-        .expect("bad server address");
-    let tcp = net::TcpStream::connect(addr).ok()
-        .expect("failed to connect");
-    let stream = BufStream::new(tcp);
-    // FIXME: do we want tutorial::build_calculator_client(BinaryProtocol, tcp) here?
+    let stream = BufStream::new(TcpStream::connect("127.0.0.1:9090").unwrap());
     let mut client = tutorial::CalculatorClient::new(BinaryProtocol, stream);
 
     // Ping
