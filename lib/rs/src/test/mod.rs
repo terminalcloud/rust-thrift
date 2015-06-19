@@ -1,41 +1,15 @@
-use {Protocol, Transport, Processor, Result, Error};
-use protocol::{Encode, Decode, Type, MessageType};
+use protocol::Encode;
+use mock::{MockProtocol, MockTransport};
 
-use mock::*;
+mod prim;
+mod strukt;
+mod enom;
+mod generated;
 
-mod generated {
-    use std::collections::{HashMap, HashSet};
-
-    strukt! {
-        name = Simple,
-        fields = {
-            key: String => 16,
-        }
-    }
-
-    strukt! {
-        name = Empty,
-        fields = {}
-    }
-
-    strukt! {
-        name = Nested,
-        fields = {
-            nested: Vec<Vec<Vec<Simple>>> => 32,
-        }
-    }
-
-    strukt! {
-        name = Recursive,
-        fields = {
-            recurse: Vec<Recursive> => 0,
-        }
-    }
-}
-
-fn encode<T: Encode>() -> MockProtocol {
+pub fn encode<T: Encode>(x: T) -> MockProtocol {
     let mut protocol = MockProtocol::new();
-    T::default().encode(&mut protocol, &mut &[]).unwrap();
+    let mut transport = MockTransport::new(vec![]);
+    x.encode(&mut protocol, &mut transport).unwrap();
     protocol
 }
 

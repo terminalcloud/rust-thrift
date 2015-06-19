@@ -2,13 +2,13 @@ use std::io;
 use std::io::Read as IoRead;
 use std::io::Write as IoWrite;
 
-use {Protocol, Transport, Processor, Result, Error};
-use protocol::{Encode, Decode, Type, MessageType};
+use {Protocol, Transport, Result};
+use protocol::{Type, MessageType};
 
-use self::ProtocolAction::*;
-use self::SerAction::*;
-use self::Primitive::*;
-use self::Action::*;
+pub use self::ProtocolAction::*;
+pub use self::SerAction::*;
+pub use self::Primitive::*;
+pub use self::Action::*;
 
 #[derive(Debug, Clone)]
 pub struct MockTransport {
@@ -220,7 +220,7 @@ impl Protocol for MockProtocol {
     fn read_string<T: Transport>(&mut self, _: &mut T) -> Result<String> { read!(self, Prim(PString(string)), string) }
     fn read_binary<T: Transport>(&mut self, _: &mut T) -> Result<Vec<u8>> { read!(self, Prim(Binary(val)), val) }
 
-    fn skip<T: Transport>(&mut self, _: &mut T, type_: Type) -> Result<()> {
+    fn skip<T: Transport>(&mut self, _: &mut T, _: Type) -> Result<()> {
         // TODO: Implement *checked* skipping
         if self.log.len() != 0 { self.log.pop(); }
         Ok(())
@@ -229,9 +229,10 @@ impl Protocol for MockProtocol {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum ProtocolAction {
+    // TODO: Confirm if we need this variant/type at all.
+    #[allow(dead_code)]
     Read(SerAction),
-    Write(SerAction),
-    Skip
+    Write(SerAction)
 }
 
 #[derive(Debug, PartialEq, Clone)]
