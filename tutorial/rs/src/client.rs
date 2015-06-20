@@ -33,11 +33,11 @@ pub fn main() {
     let mut client = tutorial::CalculatorClient::new(BinaryProtocol, stream);
 
     // Ping
-    client.ping().ok().unwrap();
+    client.ping().unwrap();
     println!("ping()");
 
     // Add
-    println!("1 + 1 = {}", client.add(1, 1).ok().unwrap());
+    println!("1 + 1 = {}", client.add(1, 1).unwrap());
 
     // TODO: Add this back in when exceptions are implemented
     // Work: divide
