@@ -1,4 +1,4 @@
-use protocol::{Type, Encode};
+use protocol::{Type, Encode, Decode};
 use mock::*;
 
 mod prim;
@@ -13,6 +13,13 @@ pub fn encode<T: Encode>(x: &T) -> MockProtocol {
     protocol
 }
 
+pub fn decode<T: Decode>(protocol: &mut MockProtocol) -> T {
+    let mut instance = T::default();
+    instance.decode(protocol, &mut MockTransport::new(vec![])).unwrap();
+    instance
+}
+
 pub fn field_end() -> ProtocolAction {
     Field(Begin((String::new(), Type::Stop, 0)))
 }
+

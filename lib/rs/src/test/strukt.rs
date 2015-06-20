@@ -1,8 +1,8 @@
-use protocol::{Type, Decode};
-
 use test::*;
 use mock::*;
 use test::generated::*;
+
+use protocol::Type;
 
 #[test]
 fn test_simple_struct() {
@@ -18,9 +18,7 @@ fn test_simple_struct() {
         Struct(End)
     ]);
 
-    let mut second = Simple::default();
-    second.decode(&mut protocol, &mut MockTransport::new(vec![])).unwrap();
-
+    let second = decode::<Simple>(&mut protocol);
     assert_eq!(instance.key, second.key);
 }
 
@@ -34,7 +32,7 @@ fn test_empty_struct() {
         Struct(End)
     ]);
 
-    Empty.decode(&mut protocol, &mut MockTransport::new(vec![])).unwrap();
+    decode::<Empty>(&mut protocol);
 }
 
 #[test]
@@ -85,10 +83,7 @@ fn test_recursive_struct() {
         Struct(End)
     ]);
 
-    let mut second = Recursive::default();
-    second.decode(&mut protocol, &mut MockTransport::new(vec![])).unwrap();
-
-    assert_recursive_equal(instance, second);
+    assert_recursive_equal(instance, decode(&mut protocol));
 
     fn assert_recursive_equal(first: Recursive, second: Recursive) {
         if first.recurse.len() != second.recurse.len() {
@@ -128,9 +123,7 @@ fn test_nested_list_in_struct() {
         Struct(End)
     ]);
 
-    let mut second = Nested::default();
-    second.decode(&mut protocol, &mut MockTransport::new(vec![])).unwrap();
-
+    let second = decode::<Nested>(&mut protocol);
     assert_eq!(instance.nested[0][0][0].key, second.nested[0][0][0].key);
 }
 
@@ -165,9 +158,7 @@ fn test_struct_with_many_fields() {
         Struct(End)
     ]);
 
-    let mut second = Many::default();
-    second.decode(&mut protocol, &mut MockTransport::new(vec![])).unwrap();
-
+    let second = decode::<Many>(&mut protocol);
     assert_eq!(instance.one, second.one);
     assert_eq!(instance.two, second.two);
     assert_eq!(instance.three[0].key, second.three[0].key);
