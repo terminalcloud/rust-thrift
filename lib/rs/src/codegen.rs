@@ -83,7 +83,8 @@ macro_rules! service_processor_methods {
             try!($crate::protocol::helpers::receive_body(prot, transport, MNAME,
                                                          &mut args, MNAME, ty, id));
 
-            let result = self.$fname.$mname($(args.$aname),*);
+            // TODO: Further investigate this unwrap.
+            let result = self.$fname.$mname($(args.$aname.unwrap()),*);
             try!($crate::protocol::helpers::send(prot, transport, MNAME,
                                                  $crate::protocol::MessageType::Reply, &result));
 
@@ -123,7 +124,7 @@ macro_rules! service_client_methods {
             static MNAME: &'static str = stringify!($mname);
 
             let mut args = $iname::default();
-            $(args.$aname = $aname;)*
+            $(args.$aname = Some($aname);)*
             try!($crate::protocol::helpers::send(&mut self.protocol, &mut self.transport,
                                                  MNAME, $crate::protocol::MessageType::Call, &mut args));
 
@@ -142,10 +143,8 @@ macro_rules! strukt {
      fields = { $($fname:ident: $fty:ty => $id:expr,)+ }) => {
         #[derive(Debug, Clone, Default)]
         pub struct $name {
-            $(pub $fname: $fty,)+
+            $(pub $fname: Option<$fty>,)+
         }
-
-        impl $crate::Exists for $name {}
 
         impl $crate::protocol::ThriftTyped for $name {
             fn typ() -> $crate::protocol::Type { $crate::protocol::Type::Struct }
@@ -157,13 +156,13 @@ macro_rules! strukt {
                 #[allow(unused_imports)]
                 use $crate::protocol::{Encode, ThriftTyped};
                 #[allow(unused_imports)]
-                use $crate::{Protocol, Exists};
+                use $crate::{Protocol};
 
                 try!(protocol.write_struct_begin(transport, stringify!($name)));
 
-                $(if self.$fname.exists() {
+                $(if let Some(ref x) = self.$fname {
                     try!(protocol.write_field_begin(transport, stringify!($fname), <$fty as ThriftTyped>::typ(), $id));
-                    try!(self.$fname.encode(protocol, transport));
+                    try!(x.encode(protocol, transport));
                     try!(protocol.write_field_end(transport));
                 })*
 
@@ -182,7 +181,6 @@ macro_rules! strukt {
                 #[allow(unused_imports)]
                 use $crate::Protocol;
 
-                let mut has_result = false;
                 try!(protocol.read_struct_begin(transport));
 
                 loop {
@@ -192,7 +190,6 @@ macro_rules! strukt {
                         break;
                     } $(else if (typ, id) == (<$fty as ThriftTyped>::typ(), $id) {
                         try!(self.$fname.decode(protocol, transport));
-                        has_result = true;
                     })* else {
                         try!(protocol.skip(transport, typ));
                     }
@@ -202,11 +199,7 @@ macro_rules! strukt {
 
                 try!(protocol.read_struct_end(transport));
 
-                if has_result {
-                    Ok(())
-                } else {
-                    Err($crate::Error::from($crate::protocol::Error::ProtocolViolation))
-                }
+                Ok(())
             }
         }
     };
@@ -263,8 +256,6 @@ macro_rules! enom {
         pub enum $name {
             $($vname = $val),*
         }
-
-        impl $crate::Exists for $name {}
 
         impl Default for $name {
             fn default() -> Self { $name::$dname }
